@@ -109,40 +109,41 @@
 ```mermaid
 graph TD
     subgraph "Level 1: External Interfaces"
-        SIP[SIP/PSTN]
         Client[Voice Client]
-        CRM[CRM: Bitrix24 / amoCRM]
-        Supervisor[Supervisor (Telegram)]
+        SIP[SIP + PSTN]
+        CRM[CRM: Bitrix24 + amoCRM]
+        Supervisor[Supervisor Chat]
     end
 
     subgraph "Level 2: Gateway and Orchestration"
-        APIGW[API Gateway / Ingress]
-        SIPBridge[SIP to WebRTC Bridge / Rust]
-        LangGraph[LangGraph Orchestrator / Campaign Manager]
+        APIGW[API Gateway + Ingress]
+        SIPBridge[SIP to WebRTC Bridge + Rust]
+        LangGraph[LangGraph Orchestrator + Campaign Manager]
     end
 
     subgraph "Level 3: AI and Voice Core"
-        LiveKit[LiveKit Server / WebRTC Media]
+        LiveKit[LiveKit Server + WebRTC Media]
         VoiceWorker[LiveKit Voice Agent Worker]
-        vLLM[vLLM Cluster / Qwen2.5-72B]
-        ASR[Streaming ASR / Faster-Whisper]
-        TTS[Streaming TTS / Silero]
-        Emotion[Emotion Detector / OpenSMILE]
+        vLLM[vLLM Cluster + Qwen2.5-72B]
+        ASR[Streaming ASR + Faster-Whisper]
+        TTS[Streaming TTS + Silero]
+        Emotion[Emotion Detector + OpenSMILE]
     end
 
     subgraph "Level 4: ML Memory and Integrations"
-        CatBoost[Propensity Model / FastAPI + CatBoost]
-        Mem0[Episodic Memory / Mem0 + Qdrant]
+        CatBoost[Propensity Model + FastAPI + CatBoost]
+        Mem0[Episodic Memory + Mem0 + Qdrant]
         Composio[Composio Integration Hub]
         Reflection[Reflection Agent Async]
     end
 
     subgraph "Level 5: Data and Infrastructure"
-        PG[(PostgreSQL 16 / pgvector)]
-        Redis[(Redis 7.2 / Streams + Cache)]
-        MinIO[(MinIO S3 / Audio + Logs)]
-        MLflow[(MLflow / MLOps)]
+        PG[(PostgreSQL 16 plus pgvector)]
+        Redis[(Redis 7.2 Streams and Cache)]
+        MinIO[(MinIO S3 Audio and Logs)]
+        MLflow[(MLflow MLOps)]
         OTel[OpenTelemetry Collector]
+        Grafana[Grafana Dashboards]
     end
 
     Client --> SIP
