@@ -16,15 +16,15 @@
 ```mermaid
 graph TD
     subgraph "Level 1: External Interfaces"
-        SIP[SIP + PSTN]
         Client[Voice Client]
+        SIP[SIP + PSTN]
         CRM[CRM: Bitrix24 + amoCRM]
-        Supervisor[Supervisor Chat + Web UI]
+        Supervisor[Supervisor Chat]
     end
 
     subgraph "Level 2: Gateway and Orchestration"
         APIGW[API Gateway + Ingress]
-        SIPBridge[SIP to WebRTC Bridge + Active Call + Rust]
+        SIPBridge[SIP to WebRTC Bridge + Rust]
         LangGraph[LangGraph Orchestrator + Campaign Manager]
     end
 
@@ -38,7 +38,7 @@ graph TD
     end
 
     subgraph "Level 4: ML Memory and Integrations"
-        CatBoost[Propensity Model Service + FastAPI]
+        CatBoost[Propensity Model + FastAPI + CatBoost]
         Mem0[Episodic Memory + Mem0 + Qdrant]
         Composio[Composio Integration Hub]
         Reflection[Reflection Agent Async]
@@ -47,7 +47,7 @@ graph TD
     subgraph "Level 5: Data and Infrastructure"
         PG[(PostgreSQL 16 plus pgvector)]
         Redis[(Redis 7.2 Streams and Cache)]
-        MinIO[(MinIO S3 + Audio and Logs)]
+        MinIO[(MinIO S3 Audio and Logs)]
         MLflow[(MLflow MLOps)]
         OTel[OpenTelemetry Collector]
         Grafana[Grafana Dashboards]
