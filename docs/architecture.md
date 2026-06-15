@@ -15,69 +15,70 @@
 
 ```mermaid
 graph TD
-    subgraph "Уровень 1: Внешние интерфейсы (External Interfaces)"
-        SIP[SIP-телефония / PSTN]
-        Client[Клиент (Голос)]
-        CRM[CRM: Битрикс24 / amoCRM]
-        Supervisor[Супервайзер (Telegram / Web UI)]
+    subgraph "Level 1: External Interfaces"
+        SIP[SIP + PSTN]
+        Client[Voice Client]
+        CRM[CRM: Bitrix24 + amoCRM]
+        Supervisor[Supervisor Chat + Web UI]
     end
 
-    subgraph "Уровень 2: Шлюз и Оркестрация (Gateway & Orchestration)"
-        APIGW[API Gateway / Ingress]
-        SIPBridge[SIP ↔ WebRTC Bridge (Active Call/Rust)]
-        LangGraph[LangGraph Orchestrator (Campaign Manager)]
+    subgraph "Level 2: Gateway and Orchestration"
+        APIGW[API Gateway + Ingress]
+        SIPBridge[SIP to WebRTC Bridge + Active Call + Rust]
+        LangGraph[LangGraph Orchestrator + Campaign Manager]
     end
 
-    subgraph "Уровень 3: Ядро ИИ и Голоса (AI & Voice Core)"
-        LiveKit[LiveKit Server (WebRTC Media)]
+    subgraph "Level 3: AI and Voice Core"
+        LiveKit[LiveKit Server + WebRTC Media]
         VoiceWorker[LiveKit Voice Agent Worker]
-        vLLM[vLLM Cluster (Qwen2.5-72B / YandexGPT)]
-        ASR[Streaming ASR (Faster-Whisper)]
-        TTS[Streaming TTS (Silero)]
-        Emotion[Emotion Detector (OpenSMILE)]
+        vLLM[vLLM Cluster + Qwen2.5-72B]
+        ASR[Streaming ASR + Faster-Whisper]
+        TTS[Streaming TTS + Silero]
+        Emotion[Emotion Detector + OpenSMILE]
     end
 
-    subgraph "Уровень 4: ML, Память и Интеграции (ML, Memory & Integrations)"
-        CatBoost[Propensity Model Service (FastAPI)]
-        Mem0[Episodic Memory (Mem0 + Qdrant)]
+    subgraph "Level 4: ML Memory and Integrations"
+        CatBoost[Propensity Model Service + FastAPI]
+        Mem0[Episodic Memory + Mem0 + Qdrant]
         Composio[Composio Integration Hub]
-        Reflection[Reflection Agent (Async)]
+        Reflection[Reflection Agent Async]
     end
 
-    subgraph "Уровень 5: Данные и Инфраструктура (Data & Infra)"
-        PG[(PostgreSQL 16 + pgvector)]
-        Redis[(Redis 7.2 Streams + Cache)]
-        MinIO[(MinIO S3: Аудио/Логи)]
-        MLflow[(MLflow: MLOps)]
+    subgraph "Level 5: Data and Infrastructure"
+        PG[(PostgreSQL 16 plus pgvector)]
+        Redis[(Redis 7.2 Streams and Cache)]
+        MinIO[(MinIO S3 + Audio and Logs)]
+        MLflow[(MLflow MLOps)]
         OTel[OpenTelemetry Collector]
+        Grafana[Grafana Dashboards]
     end
 
-    Client <-->|SIP/RTP| SIP
-    SIP <--> SIPBridge
-    SIPBridge <-->|WebRTC| LiveKit
-    LiveKit <--> VoiceWorker
+    Client --> SIP
+    SIP --> SIPBridge
+    SIPBridge --> LiveKit
+    LiveKit --> VoiceWorker
     
-    VoiceWorker <-->|Audio Chunks| ASR
-    VoiceWorker <-->|Text Stream| vLLM
-    VoiceWorker <-->|Audio Stream| TTS
-    VoiceWorker -.->|Parallel Audio| Emotion
+    VoiceWorker --> ASR
+    VoiceWorker --> vLLM
+    VoiceWorker --> TTS
+    VoiceWorker -.-> Emotion
     
-    LangGraph <--> VoiceWorker
-    LangGraph <--> CatBoost
-    LangGraph <--> Mem0
-    LangGraph <--> Reflection
+    LangGraph --> VoiceWorker
+    LangGraph --> CatBoost
+    LangGraph --> Mem0
+    LangGraph --> Reflection
     
-    LangGraph <--> Composio
-    Composio <--> CRM
-    LangGraph <--> Supervisor
+    LangGraph --> Composio
+    Composio --> CRM
+    LangGraph --> Supervisor
     
-    VoiceWorker -->|Masked Logs| PG
-    VoiceWorker -->|Raw Audio| MinIO
-    LangGraph -->|State Checkpoints| Redis
+    VoiceWorker --> PG
+    VoiceWorker --> MinIO
+    LangGraph --> Redis
     
-    ASR -.->|Metrics| OTel
-    vLLM -.->|Metrics| OTel
-    OTel --> Grafana[(Grafana Dashboards)]
+    ASR -.-> OTel
+    vLLM -.-> OTel
+    OTel --> Grafana
 ```
 
 ---
@@ -174,34 +175,34 @@ stateDiagram-v2
 
 ```mermaid
 graph LR
-    subgraph "Kubernetes Cluster (Namespace: voicegraph)"
-        subgraph "Ingress & Routing"
+    subgraph "Kubernetes Cluster: voicegraph"
+        subgraph "Ingress and Routing"
             NGINX[Nginx Ingress Controller]
         end
         
         subgraph "Compute Pods"
             LG[LangGraph Orchestrator Pod]
-            VW[LiveKit Voice Workers (HPA: 1-50 replicas)]
+            VW[LiveKit Voice Workers HPA 1 to 50 replicas]
             ML[Propensity CatBoost Pod]
-            REF[Reflection Agent Pod (CronJob)]
+            REF[Reflection Agent Pod CronJob]
         end
         
         subgraph "AI Inference"
-            VLLM[vLLM Deployment (4x H100, TP=4)]
+            VLLM[vLLM Deployment 4x H100 TP=4]
         end
         
         subgraph "StatefulSets"
-            PG[(PostgreSQL 16 Primary/Replica)]
+            PG[(PostgreSQL 16 Primary and Replica)]
             RD[(Redis 7.2 Cluster)]
             QD[(Qdrant Vector DB Cluster)]
         end
     end
     
-    subgraph "External / Managed"
-        SIP_EXT[Asterisk / SIP Provider]
-        CRM_EXT[Битрикс24 / amoCRM]
+    subgraph "External and Managed"
+        SIP_EXT[Asterisk and SIP Provider]
+        CRM_EXT[Bitrix24 and amoCRM]
         MLFLOW[MLflow Tracking Server]
-        GRAFANA[Grafana + Prometheus]
+        GRAFANA[Grafana plus Prometheus]
     end
 
     SIP_EXT --> NGINX
@@ -214,9 +215,9 @@ graph LR
     VW --> RD
     VW --> QD
     
-    LG -.->|Composio API| CRM_EXT
-    VW -.->|OTel Metrics| GRAFANA
-    ML -.->|Log Experiment| MLFLOW
+    LG -.-> CRM_EXT
+    VW -.-> GRAFANA
+    ML -.-> MLFLOW
 ```
 
 **Ключевые конфигурации:**
