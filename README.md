@@ -108,69 +108,69 @@
 
 ```mermaid
 graph TD
-    subgraph "Уровень 1: Внешние интерфейсы"
-        SIP[SIP-телефония / PSTN]
-        Client[Клиент (Голос)]
-        CRM[CRM: Битрикс24 / amoCRM]
-        Supervisor[Супервайзер (Telegram)]
+    subgraph "Level 1: External Interfaces"
+        SIP[SIP/PSTN]
+        Client[Voice Client]
+        CRM[CRM: Bitrix24 / amoCRM]
+        Supervisor[Supervisor (Telegram)]
     end
 
-    subgraph "Уровень 2: Шлюз и Оркестрация"
+    subgraph "Level 2: Gateway and Orchestration"
         APIGW[API Gateway / Ingress]
-        SIPBridge[SIP ↔ WebRTC Bridge<br/>Active Call / Rust]
-        LangGraph[LangGraph Orchestrator<br/>Campaign Manager]
+        SIPBridge[SIP to WebRTC Bridge / Rust]
+        LangGraph[LangGraph Orchestrator / Campaign Manager]
     end
 
-    subgraph "Уровень 3: Ядро ИИ и Голоса"
-        LiveKit[LiveKit Server<br/>WebRTC Media]
+    subgraph "Level 3: AI and Voice Core"
+        LiveKit[LiveKit Server / WebRTC Media]
         VoiceWorker[LiveKit Voice Agent Worker]
-        vLLM[vLLM Cluster<br/>Qwen2.5-72B / YandexGPT]
-        ASR[Streaming ASR<br/>Faster-Whisper]
-        TTS[Streaming TTS<br/>Silero]
-        Emotion[Emotion Detector<br/>OpenSMILE]
+        vLLM[vLLM Cluster / Qwen2.5-72B]
+        ASR[Streaming ASR / Faster-Whisper]
+        TTS[Streaming TTS / Silero]
+        Emotion[Emotion Detector / OpenSMILE]
     end
 
-    subgraph "Уровень 4: ML, Память и Интеграции"
-        CatBoost[Propensity Model<br/>FastAPI + CatBoost]
-        Mem0[Episodic Memory<br/>Mem0 + Qdrant]
+    subgraph "Level 4: ML Memory and Integrations"
+        CatBoost[Propensity Model / FastAPI + CatBoost]
+        Mem0[Episodic Memory / Mem0 + Qdrant]
         Composio[Composio Integration Hub]
-        Reflection[Reflection Agent<br/>Async]
+        Reflection[Reflection Agent Async]
     end
 
-    subgraph "Уровень 5: Данные и Инфраструктура"
-        PG[(PostgreSQL 16<br/>+ pgvector)]
-        Redis[(Redis 7.2<br/>Streams + Cache)]
-        MinIO[(MinIO S3<br/>Аудио / Логи)]
-        MLflow[(MLflow<br/>MLOps)]
+    subgraph "Level 5: Data and Infrastructure"
+        PG[(PostgreSQL 16 / pgvector)]
+        Redis[(Redis 7.2 / Streams + Cache)]
+        MinIO[(MinIO S3 / Audio + Logs)]
+        MLflow[(MLflow / MLOps)]
         OTel[OpenTelemetry Collector]
     end
 
-    Client <-->|SIP/RTP| SIP
-    SIP <--> SIPBridge
-    SIPBridge <-->|WebRTC| LiveKit
-    LiveKit <--> VoiceWorker
+    Client --> SIP
+    SIP --> SIPBridge
+    SIPBridge --> LiveKit
+    LiveKit --> VoiceWorker
     
-    VoiceWorker <-->|Audio Chunks| ASR
-    VoiceWorker <-->|Text Stream| vLLM
-    VoiceWorker <-->|Audio Stream| TTS
-    VoiceWorker -.->|Parallel Audio| Emotion
+    VoiceWorker --> ASR
+    VoiceWorker --> vLLM
+    VoiceWorker --> TTS
+    VoiceWorker -.-> Emotion
     
-    LangGraph <--> VoiceWorker
-    LangGraph <--> CatBoost
-    LangGraph <--> Mem0
-    LangGraph <--> Reflection
+    LangGraph --> VoiceWorker
+    LangGraph --> CatBoost
+    LangGraph --> Mem0
+    LangGraph --> Reflection
     
-    LangGraph <--> Composio
-    Composio <--> CRM
-    LangGraph <--> Supervisor
+    LangGraph --> Composio
+    Composio --> CRM
+    LangGraph --> Supervisor
     
-    VoiceWorker -->|Masked Logs| PG
-    VoiceWorker -->|Raw Audio| MinIO
-    LangGraph -->|State Checkpoints| Redis
+    VoiceWorker --> PG
+    VoiceWorker --> MinIO
+    LangGraph --> Redis
     
-    ASR -.->|Metrics| OTel
-    vLLM -.->|Metrics| OTel
-    OTel --> Grafana[(Grafana Dashboards)]
+    ASR -.-> OTel
+    vLLM -.-> OTel
+    OTel --> Grafana
 ```
 
 ### Сквозной поток данных (Sequence Diagram)
