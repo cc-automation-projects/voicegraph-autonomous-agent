@@ -1,0 +1,51 @@
+{
+  "title": "VoiceGraph Real-Time Operations",
+  "version": 1,
+  "panels": [
+    {
+      "title": "Voice Pipeline Latency (P95)",
+      "type": "graph",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(voicegraph_voice_latency_ms_bucket[5m])) by (le))",
+          "legendFormat": "P95"
+        }
+      ]
+    },
+    {
+      "title": "Call Outcomes by Campaign",
+      "type": "barchart",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(voicegraph_call_outcomes_total[5m])) by (campaign_id, outcome)",
+          "legendFormat": "{{campaign_id}} - {{outcome}}"
+        }
+      ]
+    },
+    {
+      "title": "Bandit Script Weights",
+      "type": "table",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "voicegraph_bandit_script_weights",
+          "legendFormat": "{{campaign_id}} {{script_id}} {{parameter}}"
+        }
+      ]
+    },
+    {
+      "title": "ASR Word Error Rate",
+      "type": "gauge",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "voicegraph_asr_wer",
+          "legendFormat": "WER"
+        }
+      ],
+      "thresholds": "0.2,0.4"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+openapi: 3.0.3
+info:
+  title: VoiceGraph Propensity ML API
+  version: 1.0.0
+paths:
+  /predict:
+    post:
+      summary: Batch user scoring
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                campaign_id:
+                  type: string
+                  format: uuid
+                users:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/ScoredUser"
+      responses:
+        "200":
+          description: Scored users sorted by priority
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scored_users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ScoredUser"
+                  threshold:
+                    type: number
+                  total_candidates:
+                    type: integer
+  /health:
+    get:
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    ScoredUser:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        p_answer:
+          type: number
+        p_conversion:
+          type: number
+        priority_score:
+          type: number
+        score:
+          type: number

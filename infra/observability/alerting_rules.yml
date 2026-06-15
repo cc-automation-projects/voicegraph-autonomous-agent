@@ -1,0 +1,34 @@
+groups:
+  - name: voicegraph_alerts
+    rules:
+      - alert: HighVoiceLatency
+        expr: voicegraph_voice_latency_ms{quantile="0.95"} > 1000
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High voice pipeline latency (P95 > 1000ms)"
+
+      - alert: HighRefusalRate
+        expr: rate(voicegraph_call_outcomes_total{outcome="REFUSAL"}[5m]) > 0.3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Anomalous refusal rate detected"
+
+      - alert: ASRQualityDegradation
+        expr: voicegraph_asr_wer > 0.4
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "ASR WER exceeds 40%"
+
+      - alert: CircuitBreakerOpen
+        expr: voicegraph_circuit_breaker_state{state="open"} == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Circuit Breaker OPEN for {{ $labels.integration }}"

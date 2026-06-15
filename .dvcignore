@@ -1,0 +1,7 @@
+# Exclude temporary files
+*.tmp
+*.temp
+*.swp
+__pycache__/
+.git/
+.venv/

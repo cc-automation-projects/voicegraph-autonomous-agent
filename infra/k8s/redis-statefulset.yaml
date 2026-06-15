@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-checkpointer
+  namespace: voicegraph-prod
+spec:
+  serviceName: "redis"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-checkpointer
+  template:
+    metadata:
+      labels:
+        app: redis-checkpointer
+    spec:
+      containers:
+        - name: redis
+          image: redis:7.2-alpine
+          command:
+            - "redis-server"
+            - "--appendonly"
+            - "yes"
+            - "--appendfsync"
+            - "everysec"
+            - "--maxmemory"
+            - "2gb"
+            - "--maxmemory-policy"
+            - "allkeys-lru"
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-checkpointer
+  namespace: voicegraph-prod
+spec:
+  selector:
+    app: redis-checkpointer
+  ports:
+    - port: 6379
+      targetPort: 6379
+  type: ClusterIP

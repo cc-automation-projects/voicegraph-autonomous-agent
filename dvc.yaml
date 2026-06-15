@@ -1,0 +1,24 @@
+stages:
+  gx_validation:
+    cmd: python -m src.data_pipeline.gx_setup
+    deps:
+      - src/data_pipeline/gx_setup.py
+    params:
+      - raw_data_path
+  etl_pipeline:
+    cmd: python -m src.data_pipeline.pipeline
+    deps:
+      - data/raw/crm_history_12m.csv
+      - src/data_pipeline/pipeline.py
+      - src/data_pipeline/gx_setup.py
+    outs:
+      - data/processed/crm_history_12m_clean.parquet
+  feature_engineering:
+    cmd: python -m src.propensity_model.train
+    deps:
+      - data/processed/crm_history_12m_clean.parquet
+      - data/processed/call_logs_latest.parquet
+      - src/propensity_model/features.py
+      - src/propensity_model/train.py
+    outs:
+      - data/models/catboost_model.bin
